@@ -7,7 +7,7 @@ struct CardTextStyle: ViewModifier {
    var textColor: Color = .white
    func body(content: Content) -> some View {
       content
-         .font(Font.custom("AttackOfMonsterRegular", size: 30))
+         .customFont(size: 30)
          .foregroundColor(textColor)
          .minimumScaleFactor(0.5)
          .frame(maxWidth: .infinity)

@@ -9,7 +9,7 @@ import SwiftData
 class Team {
    var teamId = UUID()
    var name: String
-   var cards: [Card] = []
+   @Relationship(deleteRule: .nullify) var cards: [Card] = []
    
    init(name: String, cards: [Card]) {
       self.name = name

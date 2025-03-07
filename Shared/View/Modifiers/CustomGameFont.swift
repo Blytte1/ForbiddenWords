@@ -11,7 +11,6 @@ struct CustomGameFont: ViewModifier {
     }
 }
 
-// Extensão para facilitar a aplicação do modificador
 extension View {
     func customFont(size: CGFloat) -> some View {
         self.modifier(CustomGameFont(size: size))

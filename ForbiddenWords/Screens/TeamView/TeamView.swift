@@ -6,6 +6,7 @@ import SwiftUI
 import SwiftData
 
 struct TeamView: View {
+   @Environment(\.modelContext) var context
    @State var vm: TeamViewModel
    @State private var name: String = ""
    
@@ -17,31 +18,37 @@ struct TeamView: View {
    }
 }
 
-#Preview ("Team View"){
-   NavigationStack {
-      TeamView(
-         vm:TeamViewModel(gameManager: GameManager(game: DummyData.game0), router: GameRouter())
-      )
-   }
-}
+//#Preview ("Team View"){
+//   NavigationStack {
+//      TeamView(
+//         vm:TeamViewModel(gameManager: GameManager(game: DummyData.game0, context: context), router: GameRouter())
+//      )
+//   }
+//}
 
 struct TeamViewContent: View {
    @State var vm: TeamViewModel
    @Binding var name: String
    @State var titleIsChanging = false
    @State var teamNames: [PersistentIdentifier: String] = [:] // Dicionário para armazenar os valores temporários
-   let message = "Para começar o jogo, adicione pelo menos duas equipes"
+   let message = "Para começar o jogo, ao menos duas equipes, insira mais uma equipe."
    
    var body: some View {
+      Spacer()
+      Text("Altere o nome das equipes ou inicie apartida")
+         .customFont(size: 30)
+         .foregroundStyle(.orange)
+         .multilineTextAlignment(.center)
+      if vm.gameManager.game.teams.count < 2 {
+         addTeam
+            .padding(20)
+      }
       List {
-         if vm.gameManager.game.teams.count < 2 {
-            addTeam
-         }
          ForEach(vm.gameManager.game.teams) { team in
             HStack {
                if !titleIsChanging {
                   Text(team.name)
-                     .font(Font.custom("AttackOfMonsterRegular", size: 30))
+                     .customFont(size: 30)
                      .onTapGesture {
                         titleIsChanging.toggle()
                      }
@@ -87,8 +94,6 @@ struct TeamViewContent: View {
          .font(.title2)
          .fontWeight(.bold)
       }
-      .scrollContentBackground(.hidden)
-      .navigationTitle("Configure sua equipe")
       .navigationBarBackButtonHidden(true)
       .onAppear {
          let appearance = UINavigationBarAppearance()
@@ -102,9 +107,10 @@ struct TeamViewContent: View {
       if !vm.gameCheck() {
          Text(message)
             .foregroundStyle(.orange)
-            .font(.title3)
+            .customFont(size: 30)
+            .offset(y:-300)
             .multilineTextAlignment(.center)
-            .background(.black)
+         
       } else {
          Button("Iniciar Partida") {
             if vm.gameCheck() {
@@ -115,7 +121,7 @@ struct TeamViewContent: View {
          .offset(y: 20)
          .buttonStyle(gameButtonStyle())
       }
-         
+      
    }
 }
 

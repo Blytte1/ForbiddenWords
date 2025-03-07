@@ -2,117 +2,157 @@
 // Created by Roberto Mascarenhas.
 // Copyright (c) Roberto Mascarenhas. All rights reserved.
 
-import SwiftUI
-import SwiftData
+import Observation
 
-enum GameManagerError: Error {
-   case gameNotInitialized
+@Observable
+class GameManager: GameManagerProtocol {
+   
+   let cardManager: CardManager
+   var game: Game
+   let maxRoundNumbers: Int = 5
+   var currentRoundId: Int = 1
+   var currentTeamIndex: Int = 0
+   
+   init(game: Game, cardManager: CardManager) {
+      self.game = game
+      self.cardManager = cardManager
+   }
 }
 
-@MainActor
-class GameManager {
-   var game: Game?
-   var maxRoundNumbers: Int
-   var currentTeamIndex: Int = 0
-   var currentRoundIndex: Int = 1
+// MARK: - Gerenciamento do Jogo
+extension GameManager {
    
-   init(maxRoundNumbers: Int) {
-      self.maxRoundNumbers = maxRoundNumbers
+   func createGame() {
+      self.game = Game(
+         teams: [
+            Team(name: "Equipe 1", cards: []),
+            Team(name: "Equipe 2", cards: [])
+         ],
+         cards: cardManager.cards.map { Card(original: $0) },
+         rounds: [Round(RoundNumber: 1)]
+      )
    }
    
-   func createGame(teams: [Team]) {
-      self.game = Game(maxRoundNumbers: maxRoundNumbers, teams: teams, teamIndex: 0, roundIndex: 1, cards: [], rounds: [])
-   }
-   
-   func getWonCard(card: Card, team: Team)async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.appendCardToTeam(card: card, team: team)
-      try await removeCard(card)
-   }
-   
-   func getLostCard(card: Card, team: Team) async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.appendCardToTeam(card: card, team: team)
-     try await removeCard(card)
-   }
-   
-   func changeTeam() async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      let index = (currentTeamIndex + 1) % game.teams.count
-      currentTeamIndex = index
-   }
-   
-   func addTeam(_ team: Team) async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.teams.append(team)
-   }
-   
-   func shuffleTeamsOrder() async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.teams.shuffle()
-   }
-   
-   func removeCard(_ card: Card) async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      if let index = game.cards.firstIndex(where: { $0.id == card.id }) {
-         game.cards.remove(at: index)
-      }
-   }
-   
-   func getDefaultCards() async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.cards.insert(contentsOf: DummyData.cards, at: game.cards.count)
-      game.cards.shuffle()
-   }
-   
-   func addRound() async throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      if  self.currentRoundIndex != maxRoundNumbers{
-         currentRoundIndex += 1
-         game.rounds.append(Round(RoundNumber: currentRoundIndex))
-      } else {
-         currentTeamIndex = 0
-      }
-   }
-   
-   func appendCardToTeam(card: Card, team: Team) async  throws {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      game.teams.first(where: { $0.id == team.id })?.cards.append(card)
-   }
-   
-   func teamWithMostCards() async throws -> String {
-      guard let game = self.game else {
-         throw GameManagerError.gameNotInitialized
-      }
-      guard !game.teams.isEmpty else { return "Não há times no jogo." }
+   func resetGame()  {
+      currentTeamIndex = 0
+      currentRoundId = 1
       
+       createGame()
+   }
+   
+   func getGameState() -> GameState {
+      guard !game.teams.isEmpty else {
+         return .error
+      }
+      let lastRound = currentRoundId == maxRoundNumbers
+      let lastTeamHasPlayed = currentTeamIndex == game.teams.count - 1
+      if lastRound {
+         return lastTeamHasPlayed ? .gameOver : .nextTeam
+      } else {
+         return lastTeamHasPlayed ? .nextRound : .nextTeam
+      }
+   }
+   
+   func teamWithMostCards() -> String {
       let maxCards = game.teams.map(\.cards.count).max() ?? 0
       let teamsWithMaxCards = game.teams.filter { $0.cards.count == maxCards }
       
-      if teamsWithMaxCards.count > 1 {
-         return "Jogo Empatado!"
-      } else if let winningTeam = teamsWithMaxCards.first {
-         return "\(winningTeam.name) venceu!"
-      } else {
-         return "Não há times com cartas."
+      switch teamsWithMaxCards.count {
+         case 0:
+            return "Não há times com cartas."// no cards
+         case 1:
+            return "\(teamsWithMaxCards.first?.name ?? "Desconhecido") venceu!" //winner
+         default:
+            return "Jogo Empatado!" //tie
       }
+   }
+}
+
+// MARK: - Manipulação de Rodadas e Times
+extension GameManager {
+   
+   func addTeam(_ team: Team) {
+      game.teams.append(team)
+   }
+   
+   func addRound() {
+      guard currentRoundId < maxRoundNumbers else {
+         return
+      }
+      currentTeamIndex = 0
+      currentRoundId += 1
+      game.rounds.append(Round(RoundNumber: currentRoundId))
+   }
+   
+   func changeTeam() {
+      print("Current Team Index era: \(currentTeamIndex)")
+      currentTeamIndex = (currentTeamIndex + 1) % game.teams.count
+      print("Current Team Index mudou para: \(currentTeamIndex)")
+   }
+   
+   func changeTeamName(team: Team, name: String) {
+      if let index = game.teams.firstIndex(where: { $0.teamId == team.teamId }) {
+         game.teams[index].name = name
+      }
+   }
+   
+   func removeTeam(team: Team) {
+      if let index = game.teams.firstIndex(where: { $0.teamId == team.teamId }) {
+         game.teams.remove(at: index)
+      }
+   }
+}
+
+// MARK: - Manipulação de Cartas
+extension GameManager {
+   
+   func dealCard(answer: Bool, team: Team) async throws {
+      guard let firstCard = game.cards.first else { return }
+      
+      let nextTeamIndex = (currentTeamIndex + 1) % game.teams.count
+      let nextTeam = game.teams[nextTeamIndex]
+      
+      do {
+         if answer {
+            try giveCardToTeam(card: firstCard, team: team)
+            print("A carta \(firstCard.keyWord) foi atribuída à equipe \(team.name)")
+            SoundManager.shared.playSound(fileName: "certaResposta", fileExtension: ".mp3")
+         } else {
+            try giveCardToTeam(card: firstCard, team: nextTeam)
+            SoundManager.shared.playSound(fileName: "errou", fileExtension: ".mp3")
+            print("A carta \(firstCard.keyWord) foi atribuída à equipe \(nextTeam.name)")
+         }
+      } catch {
+         
+         throw GameManagerError.cardDealingFailed(underlyingError: error)
+      }
+   }
+   
+   func giveCardToTeam(card: Card, team: Team) throws {
+      guard let teamIndex = game.teams.firstIndex(where: { $0.teamId == team.teamId }) else {
+         throw GameManagerError.teamNotFound // Usa o enum definido
+      }
+      
+      game.teams[teamIndex].cards.append(card)
+      try removeCard(card) //Agora remove card chama o throws
+   }
+   
+   func loadDefaultCards() {
+      game.cards = cardManager.cards.map { Card(original: $0) }
+      game.cards.shuffle()
+   }
+   
+   func removeCard(_ card: Card) throws {
+      if let index = game.cards.firstIndex(where: { $0 === card }) {
+         game.cards.remove(at: index)
+      } else {
+         throw GameManagerError.cardNotFound
+      }
+   }
+   
+   func skipCard() {
+      guard !game.cards.isEmpty else { return }
+      let first = game.cards.removeFirst()
+      game.cards.append(first)
    }
 }

@@ -5,18 +5,15 @@
 import SwiftUI
 import Observation
 
-
-
 struct CardView: View {
    @Bindable  var card: Card
-   
    var body: some View {
       
       ZStack {
          CardBackgroundView()
          VStack(alignment: .center) {
-            keyWord
-            forbiddenWords
+            KeyWordView(card: card)
+            ForbiddenWordsView(card: card)
          }
          .frame (width: 350, height: 450)
          .padding(.vertical,10)
@@ -24,14 +21,15 @@ struct CardView: View {
          .cornerRadius(30)
          .padding(20)
       }
-      
    }
 }
 #Preview {
-   CardView(card: DummyData.cards[0])
+   @Previewable @State var card: Card = DummyData.uncategorizedCards[0]
+   CardView(card: card)
 }
-extension CardView{
-   var  keyWord: some View {
+struct KeyWordView: View{
+   @Bindable var card: Card
+   var  body: some View {
       VStack() {
          Text("A palavra é:")
             .font(.title3)
@@ -40,6 +38,7 @@ extension CardView{
             .shadow(color:.white, radius: 10)
             .padding(5)
          Button{
+            self.card.answerIsRight = true
          }label: {
             Text(card.keyWord)
                .cardTextStyle()
@@ -48,14 +47,13 @@ extension CardView{
          .shadow(color:.orange, radius: 100)
          .cornerRadius(10)
          .padding(.horizontal)
-         .disabled(true)
       }
-      
    }
 }
 
-extension CardView{
-   var forbiddenWords: some View{
+struct ForbiddenWordsView: View{
+   @Bindable var card: Card
+   var body: some View{
       VStack {
          Text("Palavras Proibidas:")
             .font(.title3)
@@ -64,16 +62,15 @@ extension CardView{
             .shadow(color:.white, radius: 10)
          ForEach(card.forbiddenWords, id: \.self) { word in
             Button {
+               self.card.answerIsRight = false
             }label: {
                Text(word)
                   .cardTextStyle()
             }
-            .disabled(true)
             .background(.orange)
             .shadow(color:.orange, radius: 100)
             .cornerRadius(10)
             .padding(.horizontal)
-            
          }
       }
    }

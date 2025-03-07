@@ -9,7 +9,7 @@ import SwiftData
 class MenuViewModel {
    var game: GameManagerProtocol
    var router: GameRouterProtocol
-  
+   var dismissTutorial = false
    init( game: GameManagerProtocol, router: GameRouterProtocol) {
       self.game = game
       self.router = router

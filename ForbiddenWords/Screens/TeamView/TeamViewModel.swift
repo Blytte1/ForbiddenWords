@@ -3,7 +3,7 @@
 // Copyright (c) Roberto Mascarenhas. All rights reserved.
 
 import SwiftUI
-import SwiftData
+import Observation
 
 
 @Observable

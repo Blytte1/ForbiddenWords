@@ -2,10 +2,10 @@
 // Created by Roberto Mascarenhas.
 // Copyright (c) Roberto Mascarenhas. All rights reserved.
 import SwiftUI
-import Observation
+import SwiftData
 
 @Observable
-class GameRouter {
+class GameRouter: GameRouterProtocol {
    var path:[GameScreen] = []
    var currentScreen: GameScreen = .menu
    

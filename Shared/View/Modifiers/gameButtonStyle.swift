@@ -11,7 +11,7 @@ struct gameButtonStyle: ButtonStyle {
    func makeBody(configuration: Configuration) -> some View {
       configuration.label
          .foregroundStyle(.white)
-         .font(.title2)
+         .customFont(size: 15)
          .fontWeight(.bold)
          .padding()
          .shadow(color: .white, radius: 5)

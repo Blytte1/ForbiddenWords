@@ -10,11 +10,12 @@ struct TeamTurnView: View {
    
    var body: some View {
       VStack {
-         Text("Agora é a vez do time:")
+         Spacer()
+         Text("Agora é a vez da equipe:")
+            .customFont(size: 30)
          Text(vm.currentTeam)
             .multilineTextAlignment(.center)
-            .font(.largeTitle)
-            .padding()
+            .customFont(size: 45)
          
          LogoView()
          Spacer()
@@ -30,6 +31,7 @@ struct TeamTurnView: View {
       .foregroundStyle(.orange)
       .frame(maxWidth:.infinity,maxHeight: .infinity)
       .navigationBarBackButtonHidden(true)
+      .padding()
    }
 }
 
@@ -37,8 +39,12 @@ struct TeamTurnView: View {
    
    NavigationStack{
       TeamTurnView(
-         vm:TeamTurnViewModel(gameManager: GameManager(game: DummyData.game0),
-            router: GameRouter())
+         vm:TeamTurnViewModel(gameManager: GameManager(game: Game(
+            teams: [Team(name: "Equipe 1", cards: []),Team(name: "Equipe 2", cards: [])],
+            cards: [],
+            rounds: [Round(RoundNumber: 1)]
+         ), cardManager: CardManager(context: ModelContext(try! ModelContainer(for: Card.self)))),
+                              router: GameRouter())
       )
    }
 }

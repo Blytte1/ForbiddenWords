@@ -6,9 +6,9 @@ import Foundation
 
 enum GameScreen:Hashable{
    case menu
-   case team(Game)
-   case turn(Game)
-   case round(Game)
-   case winner(Game)
+   case team
+   case turn
+   case round
+   case winner
    case gallery
 }

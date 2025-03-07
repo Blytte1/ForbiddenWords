@@ -19,6 +19,7 @@ class WinnerViewModel{
    func resetGame() async {
       do {
          try await gameManager.resetGame()
+         router.popToRoot()
       } catch {
          print("Erro ao resetar o jogo: \(error.localizedDescription)")
       }

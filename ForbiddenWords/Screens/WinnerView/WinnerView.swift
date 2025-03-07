@@ -11,26 +11,25 @@ struct WinnerView: View {
    var body: some View {
       VStack {
          LogoView()
-            .scaleEffect(0.8)
-         
+            .scaleEffect(1.5)
+            .frame(height:400)
          Text( winnerText)
-            .font(Font.custom("AttackOfMonsterRegular", size: 50))
-            .foregroundStyle(DummyData.shapeColor)
-            .multilineTextAlignment(.center)
+            .customFont(size: 50)
+            .foregroundStyle(.orange)
             .task {
                winnerText =  vm.getWinner()
             }
-         Spacer()
-         Button("Voltar a tela inicial"){
+            .offset(y:-50)
+      Spacer()
+         Button("tela inicial"){
             Task{
-              try await vm.gameManager.resetGame()
+               await vm.resetGame()
             }
-            
-            vm.router.popToRoot()
          }
          .buttonStyle(gameButtonStyle())
+         .scaleEffect(1.5)
          .task{
-            SoundManager.shared.playSound(fileName: "gameOver", fileExtension: ".mp3")
+          //  SoundManager.shared.playSound(fileName: "gameOver", fileExtension: ".mp3")
          }
       }
       .navigationBarBackButtonHidden(true)
@@ -38,9 +37,9 @@ struct WinnerView: View {
       
 }
 
-#Preview {
-   NavigationStack{
-      WinnerView(
-         vm: WinnerViewModel( gameManager:  GameManager(game: DummyData.game0), router: GameRouter()))
-   }
-}
+//#Preview {
+//   NavigationStack{
+//      WinnerView(
+//         vm: WinnerViewModel( gameManager:  GameManager(game: DummyData.game0, context: try! ModelContext(ModelContainer())), router: GameRouter()))
+//   }
+//}

@@ -6,35 +6,36 @@ import SwiftUI
 import SwiftData
 
 struct GameViewFactory {
-    let router: GameRouter
-   
+   let router: GameRouterProtocol
+   let gameManager: GameManagerProtocol
+   let modelContainer: ModelContainer
     @ViewBuilder @MainActor
     func makeView(for screen: GameScreen) -> some View {
         switch screen {
         case .menu:
-              let viewModel = MenuViewModel(router: router)
+              let viewModel = MenuViewModel(game: gameManager, router: router)
 
             MenuView(vm: viewModel)
         
-        case .team(let game):
-            let viewModel = TeamViewModel(game: game,router: router)
+           case .team:
+              let viewModel = TeamViewModel(gameManager: gameManager,router: router)
             TeamView(vm:viewModel)
         
-        case .turn(let game):
-            let viewModel = TeamTurnViewModel(game: game,router: router)
-            TeamTurn(vm: viewModel)
+        case .turn:
+              let viewModel = TeamTurnViewModel(gameManager: gameManager,router: router)
+            TeamTurnView(vm: viewModel)
         
-        case .round(let game):
-            let viewModel = RoundViewModel(game: game,router: router)
+        case .round:
+              let viewModel = RoundViewModel(gameManager: gameManager,router: router)
             RoundView(vm: viewModel)
         
-        case .winner(let game):
-            let viewModel = WinnerViewModel(game: game,router: router)
+        case .winner:
+              let viewModel = WinnerViewModel(gameManager: gameManager,router: router)
             WinnerView(vm: viewModel)
         
         case .gallery:
-            let viewModel = GalleryViewModel(router: router)
-            GalleryOfCards(vm: viewModel)
+              let viewModel = GalleryViewModel(router: router, context: ModelContext(modelContainer))
+            GalleryView(vm: viewModel)
         }
     }
 }

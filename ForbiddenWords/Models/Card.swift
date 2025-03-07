@@ -6,32 +6,28 @@ import Foundation
 import SwiftData
 
 @Model class Card{
-    
-    var id: Int
-    var keyWord: String
-    var forbiddenWords: [String]
-    var answerIsRight: Bool?
-
-    init(id: Int, keyWord: String, forbiddenWords: [String]) {
-        self.id = id
-        self.keyWord = keyWord
-        self.forbiddenWords = forbiddenWords
-    }
+   
+   @Attribute(.unique) var id: Int
+   var keyWord: String
+   var forbiddenWords: [String]
+   var answerIsRight: Bool?
+   var categories: [String] = []
+   
+   init(id: Int, keyWord: String, forbiddenWords: [String], categories: [String] = []) {
+      self.id = id
+      self.keyWord = keyWord
+      self.forbiddenWords = forbiddenWords
+      self.categories = categories
+   }
+   convenience init(original: Card) {
+      self.init(
+         id: original.id,
+         keyWord: original.keyWord,
+         forbiddenWords: original.forbiddenWords, // Creates a new array
+         categories: original.categories          // Creates a new array
+      )
+      self.answerIsRight = original.answerIsRight // Optional, so direct assignment is fine.
+   }
 }
 
-enum CardCategory: String, CaseIterable, Identifiable {
-    
-    var id: String { self.rawValue }
-    
-    case objects = "Objetos"
-    case places = "Lugares"
-    case colors = "Cores"
-    case animals = "Animais"
-    case food = "Comida"
-    case professions = "Profissões"
-    case gamesAndSports = "Jogos e Esportes"
-    case events = "Eventos"
-    case emotions = "Emoções"
-    case abstractConcepts = "Conceitos Abstratos"
-    case people = "Pessoas"
-}
+

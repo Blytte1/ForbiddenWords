@@ -2,93 +2,132 @@
 // Created by Roberto Mascarenhas.
 // Copyright (c) Roberto Mascarenhas. All rights reserved.
 
+import SwiftData
+import SwiftUI
 
-import Foundation
+@Observable
+class CardManager {
+   var context: ModelContext?
+   
+   //Cards directly do SwiftData
+   var customCards: [Card] = []
+   
+   //Default categories
+   var defaultCategories: [String] = DummyData.defaultCardsCategories
+   
+   var customCategories: [String] {
+      didSet {
+         saveCustomCategories()
+      }
+   }
+   
+   var cards: [Card] {
+      return  customCards
+   }
 
-// CardsManager para gerenciar cartas e suas categorias
-class CardsManager {
-    private var cards: [Card] = []
-    private var cardCategories: [String] = []
-    
-    init() {
-        loadCategories()
-        loadCards()
-    }
-
-    // Método para carregar todas as categorias existentes em CardCategory
-    private func loadCategories() {
-        cardCategories = CardCategory.allCases.map { $0.rawValue.uppercased() }
-    }
-    
-    // Método para carregar todas as cartas do DummyData e preencher suas categorias
-    private func loadCards() {
-        for card in DummyData.cards {
-            var categories: [String] = []
-
-            // Verifica a categoria de cada carta baseada nos filtros do DummyData
-            if DummyData.objectsIDs.contains(card.id) {
-                categories.append(CardCategory.objects.rawValue.uppercased())
+   var categories: [String] {
+      return defaultCategories + customCategories
+   }
+   
+   init(context: ModelContext?) {
+      self.context = context
+      self.customCategories = UserDefaults.standard.stringArray(forKey: "customCategories") ?? []
+      fetchCustomCards()  // Busca os cartões do SwiftData.
+      
+      if customCards.isEmpty {
+         insertDefaultCards()
+      }
+   }
+   
+   // MARK: - Category Management
+   
+   // Adiciona uma nova categoria, se ela já não existir.
+   func insertCategory(category: String) throws {
+      guard !categories.contains(category) else {
+         throw CardManagerError.categoryAlreadyExists
+      }
+      customCategories.append(category)
+      customCategories.sort()
+   }
+   
+   
+   // Remove uma categoria existente.
+   func removeCategory(category: String) throws {
+      guard categories.contains(category) else {
+         throw CardManagerError.categoryNotFound
+      }
+      customCategories.removeAll { $0 == category }
+   }
+   
+   // MARK: - Card Management
+   func createCard(keyWord: String, forbiddenWords: [String], categories: [String] = ["TODAS","CARTAS CUSTOMIZADAS"]) throws {
+      guard !keyWord.isEmpty, !forbiddenWords.isEmpty else {
+         throw CardManagerError.invalidCardData
+      }
+      
+      let nextID = nextAvailableID()
+      let newCard = Card(id: nextID, keyWord: keyWord, forbiddenWords: forbiddenWords, categories: categories)
+      context?.insert(newCard)
+      
+      try context?.save()
+      fetchCustomCards()
+   }
+   
+   // Função para gerar o próximo ID disponível
+   private func nextAvailableID() -> Int {
+      let maxID = customCards.max(by: { $0.id < $1.id })?.id ?? 0
+      return maxID + 1
+   }
+   
+   // Função para buscar os cartões customizados
+   private func fetchCustomCards() {
+      let fetchDescriptor = FetchDescriptor<Card>(sortBy: [SortDescriptor(\Card.id)])
+      do {
+         customCards = try context?.fetch(fetchDescriptor) ?? []
+      } catch {
+         print("Erro ao buscar cartões: \(error)")
+         customCards = []
+      }
+   }
+   
+   // Remove um cartão pelo ID
+   func removeCard(id: Int) throws {
+      // Verifica se o cartão existe
+      guard let index = customCards.firstIndex(where: { $0.id == id }) else {
+         throw CardManagerError.cardNotFound
+      }
+      
+      let cardToRemove = customCards[index]
+      
+      context?.delete(cardToRemove)
+      
+      try context?.save()
+      
+      fetchCustomCards()
+   }
+   
+   // Função para persistir categorias customizadas
+   func saveCustomCategories() {
+      UserDefaults.standard.set(customCategories, forKey: "customCategories")
+   }
+   
+   // Função para inserir as cartas padrão do DummyData no SwiftData.
+   private func insertDefaultCards() {
+      for (category, ids) in DummyData.defaultCardsDictionary {
+         for id in ids {
+            //Encontra a carta correta no array 'defaultCards'.
+            if let cardData = DummyData.uncategorizedCards.first(where: { $0.id == id }) {
+               let newCard = Card(id: cardData.id, keyWord: cardData.keyWord, forbiddenWords: cardData.forbiddenWords, categories: [category])
+               context?.insert(newCard) // Insere no SwiftData.
             }
-            if DummyData.placesIDs.contains(card.id) {
-                categories.append(CardCategory.places.rawValue.uppercased())
-            }
-            if DummyData.colorsIDs.contains(card.id) {
-                categories.append(CardCategory.colors.rawValue.uppercased())
-            }
-            if DummyData.animalsIDs.contains(card.id) {
-                categories.append(CardCategory.animals.rawValue.uppercased())
-            }
-            if DummyData.foodIDs.contains(card.id) {
-                categories.append(CardCategory.food.rawValue.uppercased())
-            }
-            if DummyData.professionsIDs.contains(card.id) {
-                categories.append(CardCategory.professions.rawValue.uppercased())
-            }
-            if DummyData.gamesAndSportsIDs.contains(card.id) {
-                categories.append(CardCategory.gamesAndSports.rawValue.uppercased())
-            }
-            if DummyData.eventsIDs.contains(card.id) {
-                categories.append(CardCategory.events.rawValue.uppercased())
-            }
-            if DummyData.emotionsIDs.contains(card.id) {
-                categories.append(CardCategory.emotions.rawValue.uppercased())
-            }
-            if DummyData.abstractConceptsIDs.contains(card.id) {
-                categories.append(CardCategory.abstractConcepts.rawValue.uppercased())
-            }
-            if DummyData.peopleIDs.contains(card.id) {
-                categories.append(CardCategory.people.rawValue.uppercased())
-            }
-
-            // Atribui as categorias à carta
-            var cardWithCategories = card
-            cardWithCategories.categories = Array(Set(categories)) // Remove duplicatas, se houver
-            cards.append(cardWithCategories)
-        }
-    }
-    
-    // Método para inserir uma nova categoria a uma carta
-    func addCategory(toCardId id: Int, category: String) {
-        guard let cardIndex = cards.firstIndex(where: { $0.id == id }) else {
-            print("Carta com ID \(id) não encontrada.")
-            return
-        }
-
-        let categoryUpper = category.uppercased()
-        if !cards[cardIndex].categories.contains(categoryUpper) && cardCategories.contains(categoryUpper) {
-            cards[cardIndex].categories.append(categoryUpper)
-        } else {
-            print("Categoria já existe ou não é uma categoria válida.")
-        }
-    }
-
-    // Método para obter todas as cartas
-    func getAllCards() -> [Card] {
-        return cards
-    }
-
-    // Método para obter todas as categorias
-    func getAllCategories() -> [String] {
-        return cardCategories
-    }
+         }
+      }
+      do {
+         try context?.save()  // Salva as mudanças no contexto.
+         fetchCustomCards()    // Recarrega os cartões, agora incluindo os default.
+      } catch {
+         print("Erro ao inserir defaultCards: \(error)")
+      }
+   }
 }
+
