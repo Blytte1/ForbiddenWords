@@ -7,7 +7,7 @@ import SwiftData
 
 struct DummyData{
    
-   static let game0 = Game( teams: [team, team2], cards: [uncategorizedCards[0]], rounds: [round])
+   static let game0 = Game( teams: [team,team2], cards: [uncategorizedCards[0]], rounds: [round])
    static let team = Team(name: "Os Bons de Letra", cards:[])
    static let team2 = Team(name: "As Enciclopédias Vivas", cards:[])
    static let round =  Round(RoundNumber: 0)
