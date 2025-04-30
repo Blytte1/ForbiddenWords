@@ -16,8 +16,8 @@ struct ForbiddenWordsApp: App {
        UserDefaults.standard.register(defaults: [
            "maxRoundNumbers": 3, // <- Padrão para rounds
            "defaultTimerSetting": 60, // <- Padrão para duração (exemplo)
-           "soundOn": true // <- Padrão para som (exemplo)
-           // Adicione outras chaves e padrões aqui
+           "soundOn": true, // <- Padrão para som (exemplo)
+           "maxSkipCount":3
        ])
        print("UserDefaults padrões registrados.")
       gameManager = GameManager(game: Game(

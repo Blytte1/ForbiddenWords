@@ -20,7 +20,7 @@ import SwiftData
    
    // Propriedade computada para criar um novo cartão. Útil para visualizações de formulário.
    var newCard: Card {
-      return Card(id: 1000, keyWord: newKeyword, forbiddenWords: [newForbiddenWord1, newForbiddenWord2, newForbiddenWord3, newForbiddenWord4, newForbiddenWord5], categories: ["TODAS", "CARTAS CUSTOMIZADAS"])
+       return Card(id: 1000, keyWord: newKeyword.uppercased(), forbiddenWords: [newForbiddenWord1.uppercased(), newForbiddenWord2.uppercased(), newForbiddenWord3.uppercased(), newForbiddenWord4.uppercased(), newForbiddenWord5.uppercased()], categories: ["TODAS", "CARTAS CUSTOMIZADAS"])
    }
    
    var selectedCategory = "TODAS" {
@@ -70,8 +70,8 @@ import SwiftData
       }
       
       // Limpeza e validação das palavras proibidas.
-      let forbiddenWords = [newForbiddenWord1, newForbiddenWord2, newForbiddenWord3, newForbiddenWord4, newForbiddenWord5]
-         .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+       let forbiddenWords = [newForbiddenWord1.uppercased(), newForbiddenWord2.uppercased(), newForbiddenWord3.uppercased(), newForbiddenWord4.uppercased(), newForbiddenWord5.uppercased()]
+           .map { $0.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() }
          .filter { !$0.isEmpty }
       
       // Verifica a unicidade das palavras proibidas.
@@ -91,7 +91,7 @@ import SwiftData
       
       // Tenta criar o cartão e limpa os campos em caso de sucesso.
       do {
-         try cardManager.createCustomCard(keyWord: newKeyword, forbiddenWords: forbiddenWords)
+          try cardManager.createCustomCard(keyWord: newKeyword.uppercased(), forbiddenWords: forbiddenWords)
          // Limpa os campos do formulário.
          self.newKeyword = ""
          self.newForbiddenWord1 = ""

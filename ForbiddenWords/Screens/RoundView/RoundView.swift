@@ -39,7 +39,7 @@ struct RoundView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar{
             ToolbarItem(placement: .topBarTrailing) {
-                HStack{
+                VStack{
                     Button{
                         vm.router.popToRoot()
                         vm.gameManager.resetGame()
@@ -123,6 +123,7 @@ struct CircularTimerView: View {
         .onAppear {
             vm.timeRemaining = vm.defaultTimerSetting
             timerRunning = true
+            vm.gameManager.skipCount = 0
         }
         .onDisappear {
             timerRunning = false
@@ -163,10 +164,10 @@ struct BottomButtonsView: View{
                     ZStack {
                         Image(systemName: "arrow.trianglehead.2.clockwise")
                             .font(.largeTitle)
-                        Text("\(3 - vm.skipCount)")
+                        Text("\(vm.gameManager.maxSkipCount - vm.gameManager.skipCount)")
                     }
                 }
-                .buttonStyle(gameButtonStyle(fillColor: vm.skipCount < 3 ? .orange : .gray))
+                .buttonStyle(gameButtonStyle(fillColor: vm.gameManager.skipCount < vm.gameManager.maxSkipCount ? .orange : .gray))
                 .disabled(vm.buttonIsDisabled)
                 Button{
                     Task{

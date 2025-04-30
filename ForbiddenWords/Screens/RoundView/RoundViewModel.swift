@@ -14,80 +14,79 @@ class RoundViewModel {
     var teamCount: Int {
         gameManager.game.teams.count
     }
+    
+    var currentTeamIndex: Int {
+        gameManager.currentTeamIndex
+    }
+    
+    var currentTeam: Team {
+        gameManager.game.teams[gameManager.currentTeamIndex]
+    }
+    
+    var showTeamList = false
+    var opacity: Double = 0
 
-   var currentTeamIndex: Int {
-      gameManager.currentTeamIndex
-   }
-   
-   var currentTeam: Team {
-      gameManager.game.teams[gameManager.currentTeamIndex]
-   }
-   
-   var showTeamList = false
-   var opacity: Double = 0
-   var skipCount: Int = 0
-   var maxSkipCount: Int = 3
-   var buttonIsDisabled: Bool = false
-   var soundOn: Bool = UserDefaults.standard.bool(forKey: "soundOn")
-   
-   init(gameManager: GameManagerProtocol, router: GameRouterProtocol) {
-      self.gameManager = gameManager
-      self.router = router
-       self.defaultTimerSetting = UserDefaults.standard.integer(forKey: "defaultTimerSetting")
-   }
-   
-   /// Distribui uma carta para um time com base na resposta
-   func dealCard(answer: Bool) async {
-      guard let _ = gameManager.game.cards.first, !gameManager.game.teams.isEmpty else {
-         print("Error: There are no Cards or Teams Available.")
-         return
-      }
-      do {
-          try await gameManager.dealCard(answer: answer, team: currentTeam)
-      } catch {
-         print("Erro ao distribuir carta: \(error.localizedDescription)")
-      }
-   }
-   /// Verifica se o jogo terminou e navega para a próxima tela
-   func isGameOver() {
-      let state = gameManager.getGameState()
-      
-      switch state {
-         case .gameOver:
+    var buttonIsDisabled: Bool = false
+    var soundOn: Bool = UserDefaults.standard.bool(forKey: "soundOn")
+    
+    init(gameManager: GameManagerProtocol, router: GameRouterProtocol) {
+        self.gameManager = gameManager
+        self.router = router
+        self.defaultTimerSetting = UserDefaults.standard.integer(forKey: "defaultTimerSetting")
+    }
+    
+    /// Distribui uma carta para um time com base na resposta
+    func dealCard(answer: Bool) async {
+        guard let _ = gameManager.game.cards.first, !gameManager.game.teams.isEmpty else {
+            print("Error: There are no Cards or Teams Available.")
+            return
+        }
+        do {
+            try await gameManager.dealCard(answer: answer, team: currentTeam)
+        } catch {
+            print("Erro ao distribuir carta: \(error.localizedDescription)")
+        }
+    }
+    /// Verifica se o jogo terminou e navega para a próxima tela
+    func isGameOver() {
+        let state = gameManager.getGameState()
+        
+        switch state {
+        case .gameOver:
             router.navigateTo(.winner)
             buttonIsDisabled = false
             print("Fim de jogo")
-         case .nextTeam:
+        case .nextTeam:
             buttonIsDisabled = false
-          gameManager.changeTeam()
+            gameManager.changeTeam()
             router.navigateTo(.turn)
             print("o Current Team Index agora é: \(gameManager.currentTeamIndex)")
-         case .nextRound:
+        case .nextRound:
             buttonIsDisabled = false
             gameManager.addRound()
             router.navigateTo(.turn)
             print("O round \(gameManager.currentRoundId) foi iniciado  e o Current Team Index agora é:  \(gameManager.currentTeamIndex)")
-         case .error:
+        case .error:
             print("Ocorreu um erro inesperado.")
-      }
-   }
-   
-   /// Pula a carta atual
-   func skipCard() {
-
-       if skipCount != maxSkipCount {
-           skipCount += 1
-          gameManager.skipCard()
-          if soundOn{
-              SoundManager.shared.playSound(fileName: "pular", fileExtension: ".mp3")
-          }
-      } else {
-         buttonIsDisabled = true
-      }
-   }
-   
-   func resetGame() {
-          gameManager.resetGame()
-   }
+        }
+    }
+    
+    /// Pula a carta atual
+    func skipCard() {
+        
+        if gameManager.skipCount != gameManager.maxSkipCount {
+            gameManager.skipCount += 1
+            gameManager.skipCard()
+            if soundOn{
+                SoundManager.shared.playSound(fileName: "pular", fileExtension: ".mp3")
+            }
+        } else {
+            buttonIsDisabled = true
+        }
+    }
+    
+    func resetGame() {
+        gameManager.resetGame()
+    }
 }
 

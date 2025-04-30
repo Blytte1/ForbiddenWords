@@ -12,9 +12,13 @@ class GameManager: @preconcurrency GameManagerProtocol {
     var game: Game
     private let maxRoundsKey = "maxRoundNumbers"
     private let soundKey = "soundOn"
+    private let maxSkipCountKey = "maxSkipCount"
     private let defaultMaxRounds: Int = 3
+    private let defaultMaxSkipCount = 3
+    var skipCount: Int = 0
     var currentRoundId: Int = 1
     var currentTeamIndex: Int = 0
+   
     var maxRoundNumbers: Int {
         get {
             UserDefaults.standard.integer(forKey: maxRoundsKey) == 0 ? defaultMaxRounds : UserDefaults.standard.integer(forKey: maxRoundsKey)
@@ -23,6 +27,7 @@ class GameManager: @preconcurrency GameManagerProtocol {
             UserDefaults.standard.set(newValue, forKey: maxRoundsKey)
         }
     }
+    
     var soundOn: Bool {
            get {
                UserDefaults.standard.object(forKey: soundKey) as? Bool ?? true
@@ -32,10 +37,20 @@ class GameManager: @preconcurrency GameManagerProtocol {
            }
        }
     
-    init(game: Game, cardManager: CardManager) {
+    var maxSkipCount:  Int {
+        get {
+            UserDefaults.standard.integer(forKey: maxSkipCountKey) == 0 ? defaultMaxSkipCount : UserDefaults.standard.integer(forKey: maxSkipCountKey)
+        }
+        set {
+            UserDefaults.standard.set(newValue, forKey: maxSkipCountKey)
+        }
+    }
+    required init(game: Game, cardManager: CardManager) {
         self.game = game
         self.cardManager = cardManager
         self.soundOn = UserDefaults.standard.object(forKey: "soundOn") as? Bool ?? true
+        self.maxSkipCount = UserDefaults.standard.integer(forKey: maxSkipCountKey) == 0 ? defaultMaxSkipCount : UserDefaults.standard.integer(forKey: maxSkipCountKey)
+        self.maxRoundNumbers = UserDefaults.standard.integer(forKey: maxRoundsKey) == 0 ? defaultMaxRounds : UserDefaults.standard.integer(forKey: maxRoundsKey)
     }
 }
 

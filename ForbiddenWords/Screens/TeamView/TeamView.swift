@@ -19,6 +19,10 @@ struct TeamView: View {
              .padding(.bottom,30)
           TeamViewContent(vm: vm, name: $name)
               .toolbar{
+                  ToolbarItem(placement: .topBarLeading) {
+                      Button("Voltar"){
+                          vm.router.popToRoot()
+                      }                  }
                  ToolbarItem(placement: .bottomBar) {
                     if !vm.gameCheck() {
                        Text(message)
@@ -37,6 +41,7 @@ struct TeamView: View {
                  }
               }
       }
+      .navigationBarBackButtonHidden()
       .foregroundStyle(.orange)
    }
 }
@@ -60,57 +65,65 @@ struct TeamViewContent: View {
    
    var body: some View {
       
-         List {
-            if vm.gameManager.game.teams.count < 2 {
+       List {
+           if vm.gameManager.game.teams.count < 2 {
                addTeam
-            }
-            Section("Equipes"){
+           }
+           Section("Renomeie as equipes"){
                ForEach(vm.gameManager.game.teams) { team in
-                  HStack{
-                     TextField(
+                   HStack{
+                       TextField(
                         "Digite o nome da equipe",
                         text: Binding(
-                           get: { teamNames[team.id] ?? team.name }, // Obtém o valor temporário ou o nome original
-                           set: { teamNames[team.id] = $0 } // Atualiza o valor temporário
+                            get: { teamNames[team.id] ?? team.name }, // Obtém o valor temporário ou o nome original
+                            set: { teamNames[team.id] = $0 }
                         )
-                     )
-                     .onSubmit {
-                        if let newName = teamNames[team.id], !newName.isEmpty {
-                           vm.changeTeamName(team: team, name: newName) // Salva o novo nome
-                        }
-                        titleIsChanging.toggle()
-                     }
-                     Button {
-                        if let newName = teamNames[team.id], !newName.isEmpty {
-                           vm.changeTeamName(team: team, name: newName) // Salva o novo nome
-                        }
-                        titleIsChanging.toggle()
-                     } label: {
-                        Image(systemName: "checkmark.square")
-                     }
-                  }
+                       )
+                       .onSubmit {
+                           if let newName = teamNames[team.id], !newName.isEmpty {
+                               vm.changeTeamName(team: team, name: newName)
+                           }
+                           titleIsChanging.toggle()
+                       }
+                       .foregroundStyle(.orange)
+                       .font(.title3)
+                       Button ("Alterar"){
+                           if let newName = teamNames[team.id], !newName.isEmpty {
+                               vm.changeTeamName(team: team, name: newName)
+                           }
+                           titleIsChanging.toggle()
+                       }
+                       .buttonStyle(gameButtonStyle())
+                       .scaleEffect(0.8)
+                   }
+                   .bold()
                }
-               .foregroundStyle(.orange)
-               .font(.title2)
-               .fontWeight(.bold)
-            }
-             Section("Quantidade de Rounds"){
-                 Picker("Número de Rounds", selection: $vm.gameManager.maxRoundNumbers) {
-                     Text("3").tag(3)
-                     Text("6").tag(6)
-                     Text("9").tag(9)
-                 }
-                 .pickerStyle(SegmentedPickerStyle())
-             }
-             Section("Duração dos Rounds:"){
-                 Picker("Número de Rounds", selection: $vm.duration) {
-                     Text("60s").tag(60)
-                     Text("90s").tag(90)
-                     Text("120s").tag(120)
-                 }
-                 .pickerStyle(SegmentedPickerStyle())
-             }
-         }
+           }
+           Section("Defina a quantidade de rounds"){
+               Picker("Número de Rounds", selection: $vm.gameManager.maxRoundNumbers) {
+                   Text("3").tag(3)
+                   Text("5").tag(5)
+                   Text("7").tag(7)
+               }
+               .pickerStyle(.segmented)
+           }
+           Section("Duração dos rounds:"){
+               Picker("Número de Rounds", selection: $vm.duration) {
+                   Text("60s").tag(60)
+                   Text("90s").tag(90)
+                   Text("120s").tag(120)
+               }
+               .pickerStyle(.segmented)
+           }
+           Section("Escolha quantas trocas por round"){
+               Picker("Quantidade de trocas", selection: $vm.gameManager.maxSkipCount) {
+                   Text("3").tag(3)
+                   Text("4").tag(4)
+                   Text("5").tag(5)
+               }
+               .pickerStyle(.segmented)
+           }
+       }
          .listStyle(.insetGrouped)
          .listRowSeparator(.hidden)
          .listRowInsets(EdgeInsets())
