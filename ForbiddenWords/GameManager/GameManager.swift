@@ -63,7 +63,7 @@ extension GameManager {
                 Team(name: "Equipe 1", cards: []),
                 Team(name: "Equipe 2", cards: [])
             ],
-            cards: cardManager.dbCards.map { Card(original: $0) },
+            cards: cardManager.gameCards.map { Card(original: $0) },
             rounds: [Round(RoundNumber: 1)]
         )
     }

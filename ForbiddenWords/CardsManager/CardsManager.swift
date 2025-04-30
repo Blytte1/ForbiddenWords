@@ -12,6 +12,9 @@ class CardManager {
     var context = DataManager.shared.context
 
     var dbCards: [Card] = []
+    var gameCards: [Card] {
+        return dbCards
+    }
     
     //Default categories
     var defaultCategories: [String] = DummyData.defaultCardsCategories

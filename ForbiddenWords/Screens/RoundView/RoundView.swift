@@ -11,23 +11,13 @@ struct RoundView: View {
     var body: some View {
         VStack{
             if !vm.showTeamList && !vm.gameManager.game.cards.isEmpty{
-                VStack{
-                    Text(vm.gameManager.currentRoundId != vm.gameManager.maxRoundNumbers ? "Round \(vm.gameManager.currentRoundId) " : "Último Round")
-                        .customFont(size: 30)
-                    Text(vm.gameManager.game.teams[vm.gameManager.currentTeamIndex].name)
-                        .customFont(size: 20)
-                }
-                .fontWeight(.bold)
-                .foregroundStyle(.orange)
-                .offset(y:-30)
+                Header(vm: vm)
                 
                 ScoreBoard(vm: vm)
-                    .offset(y:-30)
                 
                 CardView(card: vm.gameManager.game.cards.first ?? Card(id: 0, keyWord: "teste", forbiddenWords: ["String", "Strong", "Stretch","Struch"]))
                     .scaleEffect(0.8, anchor: .center)
                     .frame(height: 420)
-                    .offset(y:-20)
                     .padding(.vertical, 10)
             }else{
                 Spacer()
@@ -37,28 +27,6 @@ struct RoundView: View {
             BottomButtonsView(vm: $vm)
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar{
-            ToolbarItem(placement: .topBarTrailing) {
-                VStack{
-                    Button{
-                        vm.router.popToRoot()
-                        vm.gameManager.resetGame()
-                    }label:{
-                        Image(systemName: "house.circle")
-                            .font(.title)
-                    }
-                    Button{
-                        vm.gameManager.soundOn.toggle()
-                        vm.soundOn = vm.gameManager.soundOn
-                    }label:{
-                        Image(systemName: vm.gameManager.soundOn ? "speaker.circle" : "speaker.slash.circle")
-                            .font(.title)
-                            .foregroundStyle(vm.gameManager.soundOn ? .accent : .gray)
-                    }
-                }
-                ignoresSafeArea()
-            }
-        }
         .onChange(of: vm.timeRemaining) { _, _ in
             if vm.timeRemaining == 0 {
                 withAnimation(.spring(duration:2) ){
@@ -194,8 +162,8 @@ private struct ScoreBoard: View {
             if !vm.gameManager.game.teams.isEmpty{
                 VStack {
                     Text(vm.gameManager.game.teams[0].name)
-                        .padding(.bottom)
                     Text("\(vm.gameManager.game.teams[0].cards.count)")
+                        .layoutPriority(1)
                 }
                 .scoreTextStyle()
                 .frame(width: 150, height: 150)
@@ -203,8 +171,8 @@ private struct ScoreBoard: View {
                 
                 VStack {
                     Text(vm.gameManager.game.teams[1].name)
-                        .padding(.bottom)
                     Text(vm.gameManager.game.teams[1].cards.count.description)
+                        .layoutPriority(1)
                 }
                 .scoreTextStyle()
                 .frame(width: 150, height: 150)
@@ -255,5 +223,42 @@ private struct TimeOverView: View{
     NavigationStack {
         RoundView(vm: vm)
         
+    }
+}
+
+struct Header: View {
+    @State var vm: RoundViewModel
+    var body: some View {
+        HStack{
+            Spacer()
+            VStack{
+                Text(vm.gameManager.currentRoundId != vm.gameManager.maxRoundNumbers ? "Round \(vm.gameManager.currentRoundId) " : "Último Round")
+                    .customFont(size: 30)
+                Text(vm.gameManager.game.teams[vm.gameManager.currentTeamIndex].name)
+                    .customFont(size: 20)
+            }
+            .fontWeight(.bold)
+            .foregroundStyle(.orange)
+            .offset(x:10)
+            Spacer()
+            VStack{
+                Button{
+                    vm.router.popToRoot()
+                    vm.gameManager.resetGame()
+                }label:{
+                    Image(systemName: "house.circle")
+                        .font(.title)
+                }
+                Button{
+                    vm.gameManager.soundOn.toggle()
+                    vm.soundOn = vm.gameManager.soundOn
+                }label:{
+                    Image(systemName: vm.gameManager.soundOn ? "speaker.circle" : "speaker.slash.circle")
+                        .font(.title)
+                        .foregroundStyle(vm.gameManager.soundOn ? .accent : .gray)
+                }
+            }
+            .padding(.trailing,5)
+        }
     }
 }
