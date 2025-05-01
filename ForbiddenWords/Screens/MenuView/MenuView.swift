@@ -81,7 +81,7 @@ struct RulesView: View {
                }
                Text("Para jogar, são necessárias duas equipes de no mínimo 2 pessoas.")
             }
-            .padding(.horizontal, 5)
+            .frame(maxWidth:.infinity, alignment: .leading)
             
             VStack(alignment: .leading, spacing: 10) {
                HStack(spacing: 5) {
@@ -94,7 +94,7 @@ struct RulesView: View {
                }
                Text("O jogador da vez terá entre 60 e 120 segundos para fazer sua equipe acertar o máximo de palavras-chave possível, sem falar nenhuma das palavras proibidas. Quando o time acertar, aperte a palavra-chave ou no ícone verde para pontuar e surgir a próxima palavra-chave.")
             }
-            .padding(.horizontal, 5)
+            .frame(maxWidth:.infinity, alignment: .leading)
             
             VStack(alignment: .leading, spacing: 10) {
                HStack(spacing: 5) {
@@ -108,7 +108,6 @@ struct RulesView: View {
                }
                Text("Caso não conheça a palavra-chave, o jogador poderá trocar a carta atual por outra, sem perder pontos.")
             }
-            .padding(.horizontal, 5)
             .frame(maxWidth: .infinity, alignment: .leading)
             VStack(alignment: .leading, spacing: 10) {
                HStack(spacing: 5) {
@@ -121,7 +120,7 @@ struct RulesView: View {
                }
                Text("Se o jogador atual falar qualquer uma das palavras proibidas, mesmo que parcialmente, o fiscal do round tocará na palavra-chave ou no botão vermelho \"X\" e o ponto irá para o time oponente! Não vale gesticular ou apontar. Se desobedecer, o fiscal pode pressionar o \"X\" sem dó.")
             }
-            .padding(.horizontal, 5)
+            .frame(maxWidth:.infinity, alignment: .leading)
             VStack(alignment: .leading) {
                HStack(spacing: 5) {
                   Image(systemName: "fireworks")

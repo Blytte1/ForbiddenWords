@@ -11,10 +11,11 @@ struct RoundView: View {
     var body: some View {
         VStack{
             if !vm.showTeamList && !vm.gameManager.game.cards.isEmpty{
+                
                 Header(vm: vm)
-                
+                Spacer()
                 ScoreBoard(vm: vm)
-                
+                    .padding(5)
                 CardView(card: vm.gameManager.game.cards.first ?? Card(id: 0, keyWord: "teste", forbiddenWords: ["String", "Strong", "Stretch","Struch"]))
                     .scaleEffect(0.8, anchor: .center)
                     .frame(height: 420)
@@ -25,6 +26,7 @@ struct RoundView: View {
             }
             Spacer()
             BottomButtonsView(vm: $vm)
+            Spacer()
         }
         .navigationBarBackButtonHidden(true)
         .onChange(of: vm.timeRemaining) { _, _ in
@@ -44,7 +46,7 @@ struct RoundView: View {
     }
 }
 
-//MARK: -   Circular Timer View
+//MARK: -   CIRCULAR TIMER VIEW
 
 @MainActor
 struct CircularTimerView: View {
@@ -64,11 +66,11 @@ struct CircularTimerView: View {
                     .stroke(Color.orange, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                     .animation(.easeInOut, value: progress) // Adiciona animação ao progresso
                     .rotationEffect(Angle(degrees: -90)) // Rotaciona para começar do topo
-                
                 Text("\(vm.timeRemaining)")
                     .font(.system(size: 50))
                     .foregroundColor(.gray)
             }
+            .frame(width:90)
             Button(action: { timerRunning.toggle() }) {
                 ZStack {
                     Image(systemName: timerRunning ? "pause.fill" : "play.fill")
@@ -168,7 +170,7 @@ private struct ScoreBoard: View {
                 .scoreTextStyle()
                 .frame(width: 150, height: 150)
                 CircularTimerView(vm: $vm)
-                
+                   
                 VStack {
                     Text(vm.gameManager.game.teams[1].name)
                     Text(vm.gameManager.game.teams[1].cards.count.description)
@@ -178,6 +180,7 @@ private struct ScoreBoard: View {
                 .frame(width: 150, height: 150)
             }
         }
+        
     }
 }
 
