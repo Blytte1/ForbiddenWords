@@ -76,46 +76,47 @@ struct CustomCardview: View {
    var isDisabled: Bool {if vm.newKeyword != "" && vm.newForbiddenWord1 != "" && vm.newForbiddenWord2 != "" && vm.newForbiddenWord3 != "" && vm.newForbiddenWord1 != "" && vm.newForbiddenWord4 != "" && vm.newForbiddenWord5 != "" {return false} else {return true}}
    
    var body: some View {
-      ScrollView {
+      VStack {
          Text("Crie sua carta")
             .foregroundStyle(.orange)
-            .customFont(size: 30)
-           
-         
+            .customFont(size: 50)
+         Spacer()
             CardView(card: vm.newCard)
                .scaleEffect(0.6)
                .frame(width:215, height:330)
                .padding(.bottom)
-           
+           Spacer()
                VStack(spacing:10){
                   Text("Palavra-chave")
-                     .customFont(size: 20)
+                     .customFont(size: 25)
                   TextField( "Digite uma palavra-chave", text: $vm.newKeyword)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                   Text("Palavras proibidas")
-                     .customFont(size: 20)
+                     .customFont(size: 25)
                   TextField( "Digite a palavra proibida 1", text: $vm.newForbiddenWord1)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                   TextField( "Digite a palavra proibida 2", text: $vm.newForbiddenWord2)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                   TextField( "Digite a palavra proibida 3", text: $vm.newForbiddenWord3)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                   TextField( "Digite a palavra proibida 4", text: $vm.newForbiddenWord4)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                   TextField( "Digite a palavra proibida 5", text: $vm.newForbiddenWord5)
-                       .customFont(size: 20)
+                       .customFont(size: 25)
                }
                .padding(.bottom)
             .multilineTextAlignment(.center)
             .frame(maxWidth:.infinity, alignment: .center)
             .foregroundStyle(.orange)
-        
+        Spacer()
          Button{
             vm.createCard()}label: {
                Text("Gerar")
             }
             .buttonStyle(gameButtonStyle(fillColor: isDisabled ? .gray.opacity(0.4): .orange))
             .disabled(isDisabled)
+            .scaleEffect(1.5)
+          Spacer()
       }
    }
 }
