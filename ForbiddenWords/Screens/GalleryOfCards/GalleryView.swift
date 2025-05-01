@@ -10,7 +10,7 @@ struct GalleryView: View {
    @State var vm: GalleryViewModel
    
    var body: some View {
-      VStack {
+       VStack (alignment:.trailing){
          TabView {
             CardList(vm: $vm)
                .tabItem {
@@ -28,12 +28,6 @@ struct GalleryView: View {
          }
       }
       .navigationBarBackButtonHidden(true)
-      .toolbar{
-         Button{vm.router.popToRoot()}label:{
-            Image(systemName: "house.circle")
-               .font(.largeTitle)
-         }
-      }
    }
 }
 
@@ -48,9 +42,15 @@ struct CardList: View {
    var body: some View {
       VStack {
          HStack {
+             Spacer()
             Text("Escolha uma categoria:")
-               .customFont(size: 30)
+               .customFont(size: 35)
                .foregroundStyle(.orange)
+             Spacer()
+             Button{vm.router.popToRoot()}label:{
+             Image(systemName: "house.circle")
+                .font(.largeTitle)
+          }
          }
          VerticalPicker(selection:$vm.selectedCategory, options: vm.categories)
             .padding()
@@ -59,7 +59,7 @@ struct CardList: View {
                NavigationLink(destination: CardView(card: card)) {
                      
                    Text(card.keyWord)
-                        .customFont(size: 25)
+                        .customFont(size: 30)
                         .foregroundStyle(.orange)
                }
             }
@@ -77,32 +77,41 @@ struct CustomCardview: View {
    
    var body: some View {
       VStack {
-         Text("Crie sua carta")
-            .foregroundStyle(.orange)
-            .customFont(size: 50)
+          HStack {
+              Spacer()
+              Text("Crie sua carta")
+                  .foregroundStyle(.orange)
+                  .customFont(size: 40)
+              Spacer()
+              Button{vm.router.popToRoot()}label:{
+              Image(systemName: "house.circle")
+                 .font(.largeTitle)
+           }
+          }
+          .padding(5)
          Spacer()
             CardView(card: vm.newCard)
                .scaleEffect(0.6)
                .frame(width:215, height:330)
-               .padding(.bottom)
+               .padding(.bottom,5)
            Spacer()
                VStack(spacing:10){
                   Text("Palavra-chave")
-                     .customFont(size: 25)
+                     .customFont(size: 20)
                   TextField( "Digite uma palavra-chave", text: $vm.newKeyword)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                   Text("Palavras proibidas")
-                     .customFont(size: 25)
+                     .customFont(size: 20)
                   TextField( "Digite a palavra proibida 1", text: $vm.newForbiddenWord1)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                   TextField( "Digite a palavra proibida 2", text: $vm.newForbiddenWord2)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                   TextField( "Digite a palavra proibida 3", text: $vm.newForbiddenWord3)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                   TextField( "Digite a palavra proibida 4", text: $vm.newForbiddenWord4)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                   TextField( "Digite a palavra proibida 5", text: $vm.newForbiddenWord5)
-                       .customFont(size: 25)
+                       .customFont(size: 20)
                }
                .padding(.bottom)
             .multilineTextAlignment(.center)
@@ -115,7 +124,6 @@ struct CustomCardview: View {
             }
             .buttonStyle(gameButtonStyle(fillColor: isDisabled ? .gray.opacity(0.4): .orange))
             .disabled(isDisabled)
-            .scaleEffect(1.5)
           Spacer()
       }
    }
